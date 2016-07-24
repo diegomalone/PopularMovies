@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.diegomalone.popularmovies.model.Movie;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +25,12 @@ import java.util.List;
 
 public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
+    private OnTaskCompleted<List<Movie>> mOnTaskCompleted;
+
+    public FetchMoviesTask(OnTaskCompleted<List<Movie>> onTaskCompleted) {
+        mOnTaskCompleted = onTaskCompleted;
+    }
+
     @Override
     protected List<Movie> doInBackground(String... params) {
 
@@ -37,8 +44,9 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         try {
 
             Uri.Builder builder = new Uri.Builder();
+            // TODO Put url configuration in xml
             builder.scheme("http")
-                    .authority("http://api.themoviedb.org")
+                    .authority("api.themoviedb.org")
                     .appendPath("3")
                     .appendPath("movie")
                     .appendPath(listType)
@@ -94,12 +102,25 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         }
     }
 
+    @Override
+    protected void onPostExecute(List<Movie> movies) {
+        super.onPostExecute(movies);
+
+        if (movies == null) {
+            mOnTaskCompleted.onTaskError();
+        } else {
+            mOnTaskCompleted.onTaskCompleted(movies);
+        }
+    }
+
     private List<Movie> getMovieListFromJson(String moviesJsonString)
             throws JSONException {
         List<Movie> movieList = new ArrayList<>();
 
         final String LIST_MOVIES = "results";
         final String MOVIE_TITLE = "title";
+        final String MOVIE_POSTER = "poster_path";
+        final String MOVIE_BACKGROUND_PHOTO = "backdrop_path";
 
         JSONObject moviesJson = new JSONObject(moviesJsonString);
         JSONArray movieListJson = moviesJson.getJSONArray(LIST_MOVIES);
@@ -108,8 +129,14 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             JSONObject movieJson = movieListJson.getJSONObject(i);
 
             String title = movieJson.getString(MOVIE_TITLE);
+            String posterPath = movieJson.getString(MOVIE_POSTER);
+            String backgroundPhotoPath = movieJson.getString(MOVIE_BACKGROUND_PHOTO);
 
-            Movie movie = new Movie(title);
+            // Remove the backslash in the paths
+            posterPath = StringUtils.substring(posterPath, 1);
+            backgroundPhotoPath = StringUtils.substring(backgroundPhotoPath, 1);
+
+            Movie movie = new Movie(title, posterPath, backgroundPhotoPath);
             movieList.add(movie);
         }
 

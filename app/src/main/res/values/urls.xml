@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="movie_poster_base_url">image.tmdb.org</string>
+</resources>
