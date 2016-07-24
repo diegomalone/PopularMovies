@@ -11,9 +11,9 @@ import com.diegomalone.popularmovies.R;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MovieShowcaseActivityFragment extends Fragment {
+public class MovieShowcaseFragment extends Fragment {
 
-    public MovieShowcaseActivityFragment() {
+    public MovieShowcaseFragment() {
     }
 
     @Override
