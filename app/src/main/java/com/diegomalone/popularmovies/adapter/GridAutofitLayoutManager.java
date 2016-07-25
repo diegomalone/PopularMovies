@@ -9,17 +9,17 @@ import android.util.TypedValue;
  * Created by malone on 7/24/16.
  */
 // http://stackoverflow.com/a/30256880/2874418
-public class GridAutoFitLayoutManager extends GridLayoutManager {
+public class GridAutofitLayoutManager extends GridLayoutManager {
     private int mColumnWidth;
     private boolean mColumnWidthChanged = true;
 
-    public GridAutoFitLayoutManager(Context context, int columnWidth) {
+    public GridAutofitLayoutManager(Context context, int columnWidth) {
         /* Initially set spanCount to 1, will be changed automatically later. */
         super(context, 1);
         setColumnWidth(checkedColumnWidth(context, columnWidth));
     }
 
-    public GridAutoFitLayoutManager(Context context, int columnWidth, int orientation, boolean reverseLayout) {
+    public GridAutofitLayoutManager(Context context, int columnWidth, int orientation, boolean reverseLayout) {
         /* Initially set spanCount to 1, will be changed automatically later. */
         super(context, 1, orientation, reverseLayout);
         setColumnWidth(checkedColumnWidth(context, columnWidth));

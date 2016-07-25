@@ -1,4 +1,4 @@
-package com.diegomalone.popularmoviews;
+package com.diegomalone.popularmovies;
 
 import org.junit.Test;
 

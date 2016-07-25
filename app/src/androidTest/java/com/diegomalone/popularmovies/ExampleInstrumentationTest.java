@@ -1,4 +1,4 @@
-package com.diegomalone.popularmoviews;
+package com.diegomalone.popularmovies;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

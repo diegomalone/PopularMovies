@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.diegomalone.popularmovies.R;
-import com.diegomalone.popularmovies.adapter.GridAutoFitLayoutManager;
+import com.diegomalone.popularmovies.adapter.GridAutofitLayoutManager;
 import com.diegomalone.popularmovies.adapter.MovieGridAdapter;
 import com.diegomalone.popularmovies.model.Movie;
 import com.diegomalone.popularmovies.network.FetchMoviesTask;
@@ -28,7 +28,7 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     private RecyclerView mMovieRecyclerView;
 
     private MovieGridAdapter mMovieGridAdapter;
-    private GridAutoFitLayoutManager mLayoutManager;
+    private GridAutofitLayoutManager mLayoutManager;
 
     public MovieShowcaseFragment() {
     }
@@ -47,7 +47,7 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
         // TODO Get image size programmatically
         // Size in px
-        mLayoutManager = new GridAutoFitLayoutManager(getActivity(), 500);
+        mLayoutManager = new GridAutofitLayoutManager(getActivity(), 500);
         mMovieGridAdapter = new MovieGridAdapter(getActivity());
         mMovieRecyclerView.setLayoutManager(mLayoutManager);
     }
