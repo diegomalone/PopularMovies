@@ -21,6 +21,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.MovieDetailActivity"
+            android:label="@string/title_activity_detail"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activity.MovieShowcaseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MovieShowcaseActivity" />
+        </activity>
+        <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activity.MovieShowcaseActivity">

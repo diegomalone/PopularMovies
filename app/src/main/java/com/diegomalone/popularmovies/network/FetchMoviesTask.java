@@ -121,6 +121,9 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         final String MOVIE_TITLE = "title";
         final String MOVIE_POSTER = "poster_path";
         final String MOVIE_BACKGROUND_PHOTO = "backdrop_path";
+        final String MOVIE_SYNOPSIS = "overview";
+        final String MOVIE_USER_RATING = "vote_average";
+        final String MOVIE_RELEASE_DATE = "release_date";
 
         JSONObject moviesJson = new JSONObject(moviesJsonString);
         JSONArray movieListJson = moviesJson.getJSONArray(LIST_MOVIES);
@@ -131,12 +134,15 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             String title = movieJson.getString(MOVIE_TITLE);
             String posterPath = movieJson.getString(MOVIE_POSTER);
             String backgroundPhotoPath = movieJson.getString(MOVIE_BACKGROUND_PHOTO);
+            String synopsis = movieJson.getString(MOVIE_SYNOPSIS);
+            String releaseDate = movieJson.getString(MOVIE_RELEASE_DATE);
+            double userRating = movieJson.getDouble(MOVIE_USER_RATING);
 
             // Remove the backslash in the paths
             posterPath = StringUtils.substring(posterPath, 1);
             backgroundPhotoPath = StringUtils.substring(backgroundPhotoPath, 1);
 
-            Movie movie = new Movie(title, posterPath, backgroundPhotoPath);
+            Movie movie = new Movie(title, synopsis, releaseDate, posterPath, backgroundPhotoPath, userRating);
             movieList.add(movie);
         }
 

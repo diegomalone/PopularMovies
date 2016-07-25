@@ -4,9 +4,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.diegomalone.popularmovies.R;
+import com.diegomalone.popularmovies.activity.MovieShowcaseActivity;
 import com.diegomalone.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
@@ -33,6 +35,13 @@ public class MovieCardView extends BaseCardView {
 
     private void init() {
         mMoviePoster = (ImageView) findViewById(R.id.movie_poster_image_view);
+
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MovieShowcaseActivity) mContext).selectMovie(mMovie);
+            }
+        });
     }
 
     private void updateCardInfo() {

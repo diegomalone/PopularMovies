@@ -8,10 +8,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.diegomalone.popularmovies.R;
-import com.diegomalone.popularmovies.fragment.MovieShowcaseFragment;
-import com.diegomalone.popularmovies.model.Movie;
+import com.diegomalone.popularmovies.fragment.MovieDetailFragment;
 
-public class MovieShowcaseActivity extends AppCompatActivity {
+/**
+ * Created by malone on 7/25/16.
+ */
+
+public class MovieDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +25,7 @@ public class MovieShowcaseActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content, new MovieShowcaseFragment())
+                    .add(R.id.content, new MovieDetailFragment())
                     .commit();
         }
     }
@@ -38,17 +41,11 @@ public class MovieShowcaseActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(MovieShowcaseActivity.this, SettingsActivity.class);
+            Intent intent = new Intent(MovieDetailActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void selectMovie(Movie movie) {
-        Intent intent = new Intent(MovieShowcaseActivity.this, MovieDetailActivity.class);
-        intent.putExtra(Intent.EXTRA_INTENT, movie);
-        startActivity(intent);
     }
 }
