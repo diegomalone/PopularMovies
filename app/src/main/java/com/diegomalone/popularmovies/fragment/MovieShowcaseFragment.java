@@ -1,6 +1,8 @@
 package com.diegomalone.popularmovies.fragment;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -48,9 +50,20 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
         mLayoutManager = new GridAutoFitLayoutManager(getActivity(), 500);
         mMovieGridAdapter = new MovieGridAdapter(getActivity());
         mMovieRecyclerView.setLayoutManager(mLayoutManager);
+    }
 
-        // TODO Get type from preferences
-        new FetchMoviesTask(this).execute("popular", getString(R.string.tmdb_api_key));
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        updateMovieList();
+    }
+
+    private void updateMovieList() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String listType = prefs.getString(getString(R.string.list_type_preference_key),
+                getString(R.string.preference_list_type_default_value));
+        new FetchMoviesTask(this).execute(listType, getString(R.string.tmdb_api_key));
     }
 
     @Override
