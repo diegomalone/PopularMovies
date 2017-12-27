@@ -9,9 +9,10 @@ import android.os.Parcelable;
 
 public class Movie implements Parcelable {
 
+    private long id, voteCount;
     private String title, synopsis, releaseDate;
     private String poster, backgroundPhoto;
-    private double userRating;
+    private double userRating, popularity;
 
     public Movie(String title, String synopsis, String releaseDate, String poster, String backgroundPhoto, double userRating) {
         this.title = title;
@@ -22,16 +23,26 @@ public class Movie implements Parcelable {
         this.userRating = userRating;
     }
 
-    public Movie(Parcel parcel){
-        String[] data = new String[6];
-        parcel.readStringArray(data);
+    public Movie(long id, String title) {
+        this.id = id;
 
-        this.title = data[0];
-        this.synopsis = data[1];
-        this.releaseDate = data[2];
-        this.poster = data[3];
-        this.backgroundPhoto = data[4];
-        this.userRating = Double.valueOf(data[5]);
+        this.title = title;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(long voteCount) {
+        this.voteCount = voteCount;
     }
 
     public String getTitle() {
@@ -40,22 +51,6 @@ public class Movie implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getPoster() {
-        return poster;
-    }
-
-    public void setPoster(String poster) {
-        this.poster = poster;
-    }
-
-    public String getBackgroundPhoto() {
-        return backgroundPhoto;
-    }
-
-    public void setBackgroundPhoto(String backgroundPhoto) {
-        this.backgroundPhoto = backgroundPhoto;
     }
 
     public String getSynopsis() {
@@ -74,17 +69,42 @@ public class Movie implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public String getBackgroundPhoto() {
+        return backgroundPhoto;
+    }
+
+    public void setBackgroundPhoto(String backgroundPhoto) {
+        this.backgroundPhoto = backgroundPhoto;
+    }
+
     public double getUserRating() {
         return userRating;
+    }
+
+    public void setUserRating(double userRating) {
+        this.userRating = userRating;
+    }
+
+    public double getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(double popularity) {
+        this.popularity = popularity;
     }
 
     public double getFiveStarsRating() {
         return getUserRating() / 2;
     }
 
-    public void setUserRating(double userRating) {
-        this.userRating = userRating;
-    }
 
     @Override
     public int describeContents() {
@@ -92,20 +112,37 @@ public class Movie implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeStringArray(new String[] {getTitle(),
-                getSynopsis(),
-                getReleaseDate(),
-                getPoster(),
-                getBackgroundPhoto(),
-                String.valueOf(getUserRating())});
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeLong(this.voteCount);
+        dest.writeString(this.title);
+        dest.writeString(this.synopsis);
+        dest.writeString(this.releaseDate);
+        dest.writeString(this.poster);
+        dest.writeString(this.backgroundPhoto);
+        dest.writeDouble(this.userRating);
+        dest.writeDouble(this.popularity);
     }
 
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Movie createFromParcel(Parcel parcel) {
-            return new Movie(parcel);
+    protected Movie(Parcel in) {
+        this.id = in.readLong();
+        this.voteCount = in.readLong();
+        this.title = in.readString();
+        this.synopsis = in.readString();
+        this.releaseDate = in.readString();
+        this.poster = in.readString();
+        this.backgroundPhoto = in.readString();
+        this.userRating = in.readDouble();
+        this.popularity = in.readDouble();
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
         }
 
+        @Override
         public Movie[] newArray(int size) {
             return new Movie[size];
         }

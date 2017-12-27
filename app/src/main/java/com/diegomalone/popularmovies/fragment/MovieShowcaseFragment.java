@@ -1,10 +1,15 @@
 package com.diegomalone.popularmovies.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +22,11 @@ import com.diegomalone.popularmovies.adapter.MovieGridAdapter;
 import com.diegomalone.popularmovies.model.Movie;
 import com.diegomalone.popularmovies.network.FetchMoviesTask;
 import com.diegomalone.popularmovies.network.OnTaskCompleted;
+import com.diegomalone.popularmovies.utils.SortUtils;
 
 import java.util.List;
+
+import static com.diegomalone.popularmovies.fragment.SortDialogFragment.BROADCAST_SORT_PREFERENCES_CHANGED;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -29,6 +37,13 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
     private MovieGridAdapter mMovieGridAdapter;
     private GridAutofitLayoutManager mLayoutManager;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateMovieList();
+        }
+    };
 
     public MovieShowcaseFragment() {
     }
@@ -61,9 +76,8 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
     private void updateMovieList() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String listType = prefs.getString(getString(R.string.list_type_preference_key),
-                getString(R.string.preference_list_type_default_value));
-        new FetchMoviesTask(this).execute(listType, getString(R.string.tmdb_api_key));
+        SortUtils sortUtils = new SortUtils(prefs);
+        new FetchMoviesTask(this).execute(sortUtils.getSortPreference(), getString(R.string.tmdb_api_key));
     }
 
     @Override
@@ -75,5 +89,17 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     @Override
     public void onTaskError() {
         Toast.makeText(getActivity(), "Error getting movies", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onResume() {
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, new IntentFilter(BROADCAST_SORT_PREFERENCES_CHANGED));
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
+        super.onPause();
     }
 }

@@ -2,6 +2,7 @@ package com.diegomalone.popularmovies.network;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.diegomalone.popularmovies.model.Movie;
 
@@ -38,21 +39,22 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         BufferedReader reader = null;
 
         String apiJsonResponse = null;
-        String listType = params[0];
+        String sortBy = params[0];
         String apiKey = params[1];
 
         try {
 
             Uri.Builder builder = new Uri.Builder();
-            // TODO Put url configuration in xml
             builder.scheme("http")
                     .authority("api.themoviedb.org")
                     .appendPath("3")
                     .appendPath("movie")
-                    .appendPath(listType)
+                    .appendPath(sortBy)
                     .appendQueryParameter("api_key", apiKey);
 
             URL url = new URL(builder.build().toString());
+
+            Log.i("FetchMovieTask", url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -128,7 +130,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         JSONObject moviesJson = new JSONObject(moviesJsonString);
         JSONArray movieListJson = moviesJson.getJSONArray(LIST_MOVIES);
 
-        for (int i = 0; i < movieListJson.length(); i++ ) {
+        for (int i = 0; i < movieListJson.length(); i++) {
             JSONObject movieJson = movieListJson.getJSONObject(i);
 
             String title = movieJson.getString(MOVIE_TITLE);
