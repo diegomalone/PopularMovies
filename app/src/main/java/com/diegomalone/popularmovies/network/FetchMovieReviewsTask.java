@@ -4,9 +4,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.diegomalone.popularmovies.model.Movie;
+import com.diegomalone.popularmovies.model.MovieReview;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,25 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by malone on 7/24/16.
+ * Created by Diego Malone on 27/12/17.
  */
 
-public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
+public class FetchMovieReviewsTask extends AsyncTask<String, Void, List<MovieReview>> {
 
-    private OnTaskCompleted<List<Movie>> mOnTaskCompleted;
+    private OnTaskCompleted<List<MovieReview>> mOnTaskCompleted;
 
-    public FetchMoviesTask(OnTaskCompleted<List<Movie>> onTaskCompleted) {
+    public FetchMovieReviewsTask(OnTaskCompleted<List<MovieReview>> onTaskCompleted) {
         mOnTaskCompleted = onTaskCompleted;
     }
 
     @Override
-    protected List<Movie> doInBackground(String... params) {
+    protected List<MovieReview> doInBackground(String... params) {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         String apiJsonResponse = null;
-        String sortBy = params[0];
+        String movieId = params[0];
         String apiKey = params[1];
 
         try {
@@ -49,12 +48,13 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
                     .authority("api.themoviedb.org")
                     .appendPath("3")
                     .appendPath("movie")
-                    .appendPath(sortBy)
+                    .appendPath(movieId)
+                    .appendPath("reviews")
                     .appendQueryParameter("api_key", apiKey);
 
             URL url = new URL(builder.build().toString());
 
-            Log.i("FetchMovieTask", url.toString());
+            Log.i("FetchMovieReviewsTask", url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -97,7 +97,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         }
 
         try {
-            return getMovieListFromJson(apiJsonResponse);
+            return getMovieReviewListFromJson(apiJsonResponse);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -105,52 +105,41 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
     }
 
     @Override
-    protected void onPostExecute(List<Movie> movies) {
-        super.onPostExecute(movies);
+    protected void onPostExecute(List<MovieReview> movieReviews) {
+        super.onPostExecute(movieReviews);
 
-        if (movies == null) {
+        if (movieReviews == null) {
             mOnTaskCompleted.onTaskError();
         } else {
-            mOnTaskCompleted.onTaskCompleted(movies);
+            mOnTaskCompleted.onTaskCompleted(movieReviews);
         }
     }
 
-    private List<Movie> getMovieListFromJson(String moviesJsonString)
+    private List<MovieReview> getMovieReviewListFromJson(String movieReviewsJsonString)
             throws JSONException {
-        List<Movie> movieList = new ArrayList<>();
+        List<MovieReview> movieReviewList = new ArrayList<>();
 
-        final String LIST_MOVIES = "results";
-        final String MOVIE_ID = "id";
-        final String MOVIE_TITLE = "title";
-        final String MOVIE_POSTER = "poster_path";
-        final String MOVIE_BACKGROUND_PHOTO = "backdrop_path";
-        final String MOVIE_SYNOPSIS = "overview";
-        final String MOVIE_USER_RATING = "vote_average";
-        final String MOVIE_RELEASE_DATE = "release_date";
+        final String RESULTS = "results";
+        final String REVIEW_ID = "id";
+        final String AUTHOR = "author";
+        final String CONTENT = "content";
+        final String URL = "url";
 
-        JSONObject moviesJson = new JSONObject(moviesJsonString);
-        JSONArray movieListJson = moviesJson.getJSONArray(LIST_MOVIES);
+        JSONObject moviesJson = new JSONObject(movieReviewsJsonString);
+        JSONArray reviewListJson = moviesJson.getJSONArray(RESULTS);
 
-        for (int i = 0; i < movieListJson.length(); i++) {
-            JSONObject movieJson = movieListJson.getJSONObject(i);
+        for (int i = 0; i < reviewListJson.length(); i++) {
+            JSONObject reviewJson = reviewListJson.getJSONObject(i);
 
-            long id = movieJson.getLong(MOVIE_ID);
-            String title = movieJson.getString(MOVIE_TITLE);
-            String posterPath = movieJson.getString(MOVIE_POSTER);
-            String backgroundPhotoPath = movieJson.getString(MOVIE_BACKGROUND_PHOTO);
-            String synopsis = movieJson.getString(MOVIE_SYNOPSIS);
-            String releaseDate = movieJson.getString(MOVIE_RELEASE_DATE);
-            double userRating = movieJson.getDouble(MOVIE_USER_RATING);
+            String id = reviewJson.getString(REVIEW_ID);
+            String author = reviewJson.getString(AUTHOR);
+            String content = reviewJson.getString(CONTENT);
+            String url = reviewJson.getString(URL);
 
-            // Remove the backslash in the paths
-            posterPath = StringUtils.substring(posterPath, 1);
-            backgroundPhotoPath = StringUtils.substring(backgroundPhotoPath, 1);
-
-            Movie movie = new Movie(id, title, synopsis, releaseDate, posterPath, backgroundPhotoPath, userRating);
-            movieList.add(movie);
+            MovieReview movieReview = new MovieReview(author, url, content, id);
+            movieReviewList.add(movieReview);
         }
 
-        return movieList;
+        return movieReviewList;
     }
-
 }

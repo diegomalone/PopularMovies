@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +32,11 @@ import static com.diegomalone.popularmovies.fragment.SortDialogFragment.BROADCAS
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<List<Movie>> {
+public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<List<Movie>>, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mMovieRecyclerView;
 
+    private SwipeRefreshLayout mSwapRefreshLayout;
     private MovieGridAdapter mMovieGridAdapter;
     private GridAutofitLayoutManager mLayoutManager;
 
@@ -58,18 +60,16 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mMovieRecyclerView = (RecyclerView) view.findViewById(R.id.movie_list_recycler_view);
+        mMovieRecyclerView = view.findViewById(R.id.movie_list_recycler_view);
+        mSwapRefreshLayout = view.findViewById(R.id.swipe_layout);
+
+        mSwapRefreshLayout.setOnRefreshListener(this);
 
         // TODO Get image size programmatically
         // Size in px
         mLayoutManager = new GridAutofitLayoutManager(getActivity(), 500);
         mMovieGridAdapter = new MovieGridAdapter(getActivity());
         mMovieRecyclerView.setLayoutManager(mLayoutManager);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
 
         updateMovieList();
     }
@@ -88,7 +88,7 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
     @Override
     public void onTaskError() {
-        Toast.makeText(getActivity(), "Error getting movies", Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), R.string.error_getting_movies, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -101,5 +101,11 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     public void onPause() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
         super.onPause();
+    }
+
+    @Override
+    public void onRefresh() {
+        updateMovieList();
+        mSwapRefreshLayout.setRefreshing(false);
     }
 }

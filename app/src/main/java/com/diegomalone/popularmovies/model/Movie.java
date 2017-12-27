@@ -14,19 +14,14 @@ public class Movie implements Parcelable {
     private String poster, backgroundPhoto;
     private double userRating, popularity;
 
-    public Movie(String title, String synopsis, String releaseDate, String poster, String backgroundPhoto, double userRating) {
+    public Movie(long id, String title, String synopsis, String releaseDate, String poster, String backgroundPhoto, double userRating) {
+        this.id = id;
         this.title = title;
         this.synopsis = synopsis;
         this.releaseDate = releaseDate;
         this.poster = poster;
         this.backgroundPhoto = backgroundPhoto;
         this.userRating = userRating;
-    }
-
-    public Movie(long id, String title) {
-        this.id = id;
-
-        this.title = title;
     }
 
     public long getId() {

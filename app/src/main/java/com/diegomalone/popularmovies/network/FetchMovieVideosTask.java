@@ -4,9 +4,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.diegomalone.popularmovies.model.Movie;
+import com.diegomalone.popularmovies.model.MovieVideo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,25 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by malone on 7/24/16.
+ * Created by Diego Malone on 27/12/17.
  */
 
-public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
+public class FetchMovieVideosTask extends AsyncTask<String, Void, List<MovieVideo>> {
 
-    private OnTaskCompleted<List<Movie>> mOnTaskCompleted;
+    private OnTaskCompleted<List<MovieVideo>> mOnTaskCompleted;
 
-    public FetchMoviesTask(OnTaskCompleted<List<Movie>> onTaskCompleted) {
+    public FetchMovieVideosTask(OnTaskCompleted<List<MovieVideo>> onTaskCompleted) {
         mOnTaskCompleted = onTaskCompleted;
     }
 
     @Override
-    protected List<Movie> doInBackground(String... params) {
+    protected List<MovieVideo> doInBackground(String... params) {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         String apiJsonResponse = null;
-        String sortBy = params[0];
+        String movieId = params[0];
         String apiKey = params[1];
 
         try {
@@ -49,12 +48,13 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
                     .authority("api.themoviedb.org")
                     .appendPath("3")
                     .appendPath("movie")
-                    .appendPath(sortBy)
+                    .appendPath(movieId)
+                    .appendPath("videos")
                     .appendQueryParameter("api_key", apiKey);
 
             URL url = new URL(builder.build().toString());
 
-            Log.i("FetchMovieTask", url.toString());
+            Log.i("FetchMovieVideosTask", url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -97,7 +97,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         }
 
         try {
-            return getMovieListFromJson(apiJsonResponse);
+            return getMovieVideoListFromJson(apiJsonResponse);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -105,52 +105,49 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
     }
 
     @Override
-    protected void onPostExecute(List<Movie> movies) {
-        super.onPostExecute(movies);
+    protected void onPostExecute(List<MovieVideo> movieVideos) {
+        super.onPostExecute(movieVideos);
 
-        if (movies == null) {
+        if (movieVideos == null) {
             mOnTaskCompleted.onTaskError();
         } else {
-            mOnTaskCompleted.onTaskCompleted(movies);
+            mOnTaskCompleted.onTaskCompleted(movieVideos);
         }
     }
 
-    private List<Movie> getMovieListFromJson(String moviesJsonString)
+    private List<MovieVideo> getMovieVideoListFromJson(String movieVideosJsonString)
             throws JSONException {
-        List<Movie> movieList = new ArrayList<>();
+        List<MovieVideo> movieVideoList = new ArrayList<>();
 
-        final String LIST_MOVIES = "results";
-        final String MOVIE_ID = "id";
-        final String MOVIE_TITLE = "title";
-        final String MOVIE_POSTER = "poster_path";
-        final String MOVIE_BACKGROUND_PHOTO = "backdrop_path";
-        final String MOVIE_SYNOPSIS = "overview";
-        final String MOVIE_USER_RATING = "vote_average";
-        final String MOVIE_RELEASE_DATE = "release_date";
+        final String RESULTS = "results";
+        final String VIDEO_ID = "id";
+        final String LANGUAGE_CODE = "iso_639_1";
+        final String COUNTRY_CODE = "iso_3166_1";
+        final String KEY = "key";
+        final String NAME = "name";
+        final String SITE = "site";
+        final String SIZE = "size";
+        final String VIDEO_TYPE = "type";
 
-        JSONObject moviesJson = new JSONObject(moviesJsonString);
-        JSONArray movieListJson = moviesJson.getJSONArray(LIST_MOVIES);
+        JSONObject moviesJson = new JSONObject(movieVideosJsonString);
+        JSONArray videoListJson = moviesJson.getJSONArray(RESULTS);
 
-        for (int i = 0; i < movieListJson.length(); i++) {
-            JSONObject movieJson = movieListJson.getJSONObject(i);
+        for (int i = 0; i < videoListJson.length(); i++) {
+            JSONObject videoJson = videoListJson.getJSONObject(i);
 
-            long id = movieJson.getLong(MOVIE_ID);
-            String title = movieJson.getString(MOVIE_TITLE);
-            String posterPath = movieJson.getString(MOVIE_POSTER);
-            String backgroundPhotoPath = movieJson.getString(MOVIE_BACKGROUND_PHOTO);
-            String synopsis = movieJson.getString(MOVIE_SYNOPSIS);
-            String releaseDate = movieJson.getString(MOVIE_RELEASE_DATE);
-            double userRating = movieJson.getDouble(MOVIE_USER_RATING);
+            String id = videoJson.getString(VIDEO_ID);
+            String languageCode = videoJson.getString(LANGUAGE_CODE);
+            String countryCode = videoJson.getString(COUNTRY_CODE);
+            String key = videoJson.getString(KEY);
+            String name = videoJson.getString(NAME);
+            String site = videoJson.getString(SITE);
+            int size = videoJson.getInt(SIZE);
+            String type = videoJson.getString(VIDEO_TYPE);
 
-            // Remove the backslash in the paths
-            posterPath = StringUtils.substring(posterPath, 1);
-            backgroundPhotoPath = StringUtils.substring(backgroundPhotoPath, 1);
-
-            Movie movie = new Movie(id, title, synopsis, releaseDate, posterPath, backgroundPhotoPath, userRating);
-            movieList.add(movie);
+            MovieVideo movieVideo = new MovieVideo(id, languageCode, countryCode, key, name, site, type, size);
+            movieVideoList.add(movieVideo);
         }
 
-        return movieList;
+        return movieVideoList;
     }
-
 }
