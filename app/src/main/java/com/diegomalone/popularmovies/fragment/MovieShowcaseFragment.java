@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.diegomalone.popularmovies.R;
 import com.diegomalone.popularmovies.adapter.GridAutofitLayoutManager;
 import com.diegomalone.popularmovies.adapter.MovieGridAdapter;
+import com.diegomalone.popularmovies.customview.EndlessRecyclerOnScrollListener;
 import com.diegomalone.popularmovies.model.Movie;
 import com.diegomalone.popularmovies.network.FetchMoviesTask;
 import com.diegomalone.popularmovies.network.OnTaskCompleted;
@@ -40,10 +41,14 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     private MovieGridAdapter mMovieGridAdapter;
     private GridAutofitLayoutManager mLayoutManager;
 
+    private EndlessRecyclerOnScrollListener mEndlessRecyclerOnScrollListener;
+
+    private int mCurrentPage = 1;
+
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateMovieList();
+            updateMovieList(1);
         }
     };
 
@@ -65,25 +70,48 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
         mSwapRefreshLayout.setOnRefreshListener(this);
 
-        // TODO Get image size programmatically
         // Size in px
         mLayoutManager = new GridAutofitLayoutManager(getActivity(), 500);
         mMovieGridAdapter = new MovieGridAdapter(getActivity());
-        mMovieRecyclerView.setLayoutManager(mLayoutManager);
 
-        updateMovieList();
+        setupRecyclerView();
+
+        updateMovieList(1);
     }
 
-    private void updateMovieList() {
+    private void setupRecyclerView() {
+        mMovieRecyclerView.setLayoutManager(mLayoutManager);
+        mMovieRecyclerView.setAdapter(mMovieGridAdapter);
+
+        mEndlessRecyclerOnScrollListener = new EndlessRecyclerOnScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int page) {
+                mSwapRefreshLayout.setRefreshing(true);
+                updateMovieList(page);
+            }
+        };
+        mMovieRecyclerView.addOnScrollListener(mEndlessRecyclerOnScrollListener);
+    }
+
+    private void updateMovieList(int page) {
+        mSwapRefreshLayout.setRefreshing(true);
+        mCurrentPage = page;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SortUtils sortUtils = new SortUtils(prefs);
-        new FetchMoviesTask(this).execute(sortUtils.getSortPreference(), getString(R.string.tmdb_api_key));
+        new FetchMoviesTask(this).execute(sortUtils.getSortPreference(), String.valueOf(page), getString(R.string.tmdb_api_key));
     }
 
     @Override
     public void onTaskCompleted(List<Movie> movieList) {
-        mMovieGridAdapter.setMovieList(movieList);
-        mMovieRecyclerView.setAdapter(mMovieGridAdapter);
+        mEndlessRecyclerOnScrollListener.setLoading(false);
+        if (mCurrentPage == 1) {
+            mMovieGridAdapter.setMovieList(movieList);
+            mEndlessRecyclerOnScrollListener.reset();
+        } else {
+            mMovieGridAdapter.addMovieList(movieList);
+        }
+
+        mSwapRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -105,7 +133,7 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
     @Override
     public void onRefresh() {
-        updateMovieList();
+        updateMovieList(1);
         mSwapRefreshLayout.setRefreshing(false);
     }
 }

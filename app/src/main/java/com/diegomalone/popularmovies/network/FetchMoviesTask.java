@@ -40,7 +40,8 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         String apiJsonResponse = null;
         String sortBy = params[0];
-        String apiKey = params[1];
+        String page = params[1];
+        String apiKey = params[2];
 
         try {
 
@@ -50,7 +51,8 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
                     .appendPath("3")
                     .appendPath("movie")
                     .appendPath(sortBy)
-                    .appendQueryParameter("api_key", apiKey);
+                    .appendQueryParameter("api_key", apiKey)
+                    .appendQueryParameter("page", page);
 
             URL url = new URL(builder.build().toString());
 
