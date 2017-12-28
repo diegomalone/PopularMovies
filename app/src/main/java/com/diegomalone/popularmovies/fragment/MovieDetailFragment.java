@@ -3,8 +3,12 @@ package com.diegomalone.popularmovies.fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.diegomalone.popularmovies.R;
+import com.diegomalone.popularmovies.adapter.MovieReviewAdapter;
+import com.diegomalone.popularmovies.customview.CustomDividerItemDecoration;
 import com.diegomalone.popularmovies.model.Movie;
 import com.diegomalone.popularmovies.model.MovieReview;
 import com.diegomalone.popularmovies.model.MovieVideo;
@@ -26,16 +32,24 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 import java.util.Locale;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 /**
  * Created by malone on 7/25/16.
  */
 
 public class MovieDetailFragment extends Fragment {
 
-    private TextView mMovieTitleTextView, mMovieSynopsisTextView, mMovieReleaseDateTextView, mMovieRatingTextView;
+    private TextView mMovieTitleTextView, mMovieSynopsisTextView, mMovieReleaseDateTextView, mMovieRatingTextView,
+            mNoMovieReviewsTextView, mNoMovieVideosTextView, mMovieReviewsLoadingTextView, mMovieVideosLoadingTextView;
     private ImageView mMovieThumbnailImageView;
     private RatingBar mMovieRatingBar;
     private Movie mMovie;
+
+    private RecyclerView mVideoRecyclerView, mReviewsRecyclerView;
+    private MovieReviewAdapter mMovieReviewAdapter;
+    private LinearLayoutManager mMovieReviewLayoutManager, mMovieVideoLayoutManager;
 
     public MovieDetailFragment() {
     }
@@ -55,7 +69,7 @@ public class MovieDetailFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         mMovieTitleTextView = view.findViewById(R.id.movie_title_text_view);
@@ -64,13 +78,21 @@ public class MovieDetailFragment extends Fragment {
         mMovieThumbnailImageView = view.findViewById(R.id.movie_thumbnail_image_view);
         mMovieRatingBar = view.findViewById(R.id.movie_rating_rating_bar);
         mMovieRatingTextView = view.findViewById(R.id.movie_rating_text_view);
+        mNoMovieReviewsTextView = view.findViewById(R.id.review_list_empty_text_view);
+        mNoMovieVideosTextView = view.findViewById(R.id.video_list_empty_text_view);
+        mMovieReviewsLoadingTextView = view.findViewById(R.id.review_list_loading_text_view);
+        mMovieVideosLoadingTextView = view.findViewById(R.id.video_list_loading_text_view);
+
+        mVideoRecyclerView = view.findViewById(R.id.video_list_recycler_view);
+        mReviewsRecyclerView = view.findViewById(R.id.review_list_recycler_view);
+
+        setupRecyclerViews();
 
         mMovieTitleTextView.setText(mMovie.getTitle());
         mMovieSynopsisTextView.setText(mMovie.getSynopsis());
         mMovieReleaseDateTextView.setText(getString(R.string.release_date_placeholder, mMovie.getReleaseDate()));
         mMovieRatingBar.setRating((float) mMovie.getFiveStarsRating());
         mMovieRatingTextView.setText(String.format(Locale.ENGLISH, "%.1f", mMovie.getFiveStarsRating()));
-
 
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("http")
@@ -98,6 +120,16 @@ public class MovieDetailFragment extends Fragment {
         loadMovieReviews();
     }
 
+    private void setupRecyclerViews() {
+        mMovieReviewAdapter = new MovieReviewAdapter(getContext());
+        mMovieReviewLayoutManager = new LinearLayoutManager(getContext());
+        mReviewsRecyclerView.setLayoutManager(mMovieReviewLayoutManager);
+        mReviewsRecyclerView.setAdapter(mMovieReviewAdapter);
+        mReviewsRecyclerView.setNestedScrollingEnabled(false);
+
+        mReviewsRecyclerView.addItemDecoration(new CustomDividerItemDecoration(ContextCompat.getDrawable(getContext(), R.drawable.divider)));
+    }
+
     private void loadMovieVideos() {
         new FetchMovieVideosTask(movieVideoListOnTaskCompleted).execute(String.valueOf(mMovie.getId()), getString(R.string.tmdb_api_key));
     }
@@ -121,7 +153,15 @@ public class MovieDetailFragment extends Fragment {
     OnTaskCompleted<List<MovieReview>> movieReviewListOnTaskCompleted = new OnTaskCompleted<List<MovieReview>>() {
         @Override
         public void onTaskCompleted(List<MovieReview> movieReviews) {
-            Log.i(this.getClass().getSimpleName(), "onTaskCompleted: " + movieReviews);
+            mMovieReviewsLoadingTextView.setVisibility(GONE);
+            if (movieReviews.size() > 0) {
+                mMovieReviewAdapter.setMovieList(movieReviews);
+                mReviewsRecyclerView.setVisibility(VISIBLE);
+                mNoMovieReviewsTextView.setVisibility(GONE);
+            } else {
+                mReviewsRecyclerView.setVisibility(GONE);
+                mNoMovieReviewsTextView.setVisibility(VISIBLE);
+            }
         }
 
         @Override

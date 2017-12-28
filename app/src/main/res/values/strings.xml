@@ -9,6 +9,13 @@
     <string name="error_getting_movie_videos">Error getting movie videos</string>
 
     <string name="release_date_placeholder">Release date %1$s</string>
+    <string name="details_overview_title">Overview</string>
+    <string name="details_video_title">Videos</string>
+    <string name="details_reviews_title">Reviews</string>
+
+    <string name="details_loading">Loading&#8230;</string>
+    <string name="details_no_videos">No movie videos to show</string>
+    <string name="details_no_reviews">No user reviews to show</string>
 
     <!-- Preference Screen -->
     <string name="preference_category_list_type">List type</string>
