@@ -7,6 +7,7 @@
 
     <string name="error_getting_movies">Error getting movies</string>
     <string name="error_getting_movie_videos">Error getting movie videos</string>
+    <string name="error_getting_movie_reviews">Error getting movie reviews</string>
 
     <string name="release_date_placeholder">Release date %1$s</string>
     <string name="details_overview_title">Overview</string>
@@ -17,12 +18,15 @@
     <string name="details_no_videos">No movie videos to show</string>
     <string name="details_no_reviews">No user reviews to show</string>
 
+    <string name="details_video_youtube_pattern" translatable="false">https://img.youtube.com/vi/%1$s/mqdefault.jpg</string>
+    <string name="details_video_youtube_url_pattern" translatable="false">http://www.youtube.com/watch?v=%1$s</string>
+
     <!-- Preference Screen -->
     <string name="preference_category_list_type">List type</string>
     <string name="preference_list_type_title">List type</string>
     <string name="preference_list_type_summary">Choose how to list the movies</string>
-    <string name="list_type_preference_key">list_type_preference</string>
-    <string name="preference_list_type_default_value">popular</string>
+    <string name="list_type_preference_key" translatable="false">list_type_preference</string>
+    <string name="preference_list_type_default_value" translatable="false">popular</string>
     <string name="sort_dialog_title">Sort by</string>
     <string name="cancel_button">Cancel</string>
     <string-array name="preference_list_type_entries">

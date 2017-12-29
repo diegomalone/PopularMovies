@@ -9,17 +9,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.diegomalone.popularmovies.R;
 import com.diegomalone.popularmovies.adapter.MovieReviewAdapter;
+import com.diegomalone.popularmovies.adapter.MovieVideoAdapter;
 import com.diegomalone.popularmovies.customview.CustomDividerItemDecoration;
 import com.diegomalone.popularmovies.model.Movie;
 import com.diegomalone.popularmovies.model.MovieReview;
@@ -49,6 +50,7 @@ public class MovieDetailFragment extends Fragment {
 
     private RecyclerView mVideoRecyclerView, mReviewsRecyclerView;
     private MovieReviewAdapter mMovieReviewAdapter;
+    private MovieVideoAdapter mMovieVideoAdapter;
     private LinearLayoutManager mMovieReviewLayoutManager, mMovieVideoLayoutManager;
 
     public MovieDetailFragment() {
@@ -128,6 +130,11 @@ public class MovieDetailFragment extends Fragment {
         mReviewsRecyclerView.setNestedScrollingEnabled(false);
 
         mReviewsRecyclerView.addItemDecoration(new CustomDividerItemDecoration(ContextCompat.getDrawable(getContext(), R.drawable.divider)));
+
+        mMovieVideoAdapter = new MovieVideoAdapter(getContext());
+        mMovieVideoLayoutManager = new LinearLayoutManager(getContext(), LinearLayout.HORIZONTAL, false);
+        mVideoRecyclerView.setLayoutManager(mMovieVideoLayoutManager);
+        mVideoRecyclerView.setAdapter(mMovieVideoAdapter);
     }
 
     private void loadMovieVideos() {
@@ -141,7 +148,15 @@ public class MovieDetailFragment extends Fragment {
     OnTaskCompleted<List<MovieVideo>> movieVideoListOnTaskCompleted = new OnTaskCompleted<List<MovieVideo>>() {
         @Override
         public void onTaskCompleted(List<MovieVideo> movieVideos) {
-            Log.i(this.getClass().getSimpleName(), "onTaskCompleted: " + movieVideos);
+            mMovieVideosLoadingTextView.setVisibility(GONE);
+            if (movieVideos.size() > 0) {
+                mMovieVideoAdapter.setMovieList(movieVideos);
+                mVideoRecyclerView.setVisibility(VISIBLE);
+                mNoMovieVideosTextView.setVisibility(GONE);
+            } else {
+                mVideoRecyclerView.setVisibility(GONE);
+                mNoMovieVideosTextView.setVisibility(VISIBLE);
+            }
         }
 
         @Override
@@ -166,7 +181,7 @@ public class MovieDetailFragment extends Fragment {
 
         @Override
         public void onTaskError() {
-            Toast.makeText(getActivity(), R.string.error_getting_movie_videos, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.error_getting_movie_reviews, Toast.LENGTH_LONG).show();
         }
     };
 }

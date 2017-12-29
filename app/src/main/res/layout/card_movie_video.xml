@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/movie_video_thumbnail"
+        android:layout_width="192dp"
+        android:layout_height="108dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin" />
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_centerInParent="true"
+        android:alpha="0.6"
+        android:tint="@color/divider"
+        app:srcCompat="@drawable/ic_play_circle_filled_black_24dp" />
+
+</RelativeLayout>

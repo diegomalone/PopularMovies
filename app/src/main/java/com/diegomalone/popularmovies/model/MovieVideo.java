@@ -3,11 +3,15 @@ package com.diegomalone.popularmovies.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Created by Diego Malone on 27/12/17.
  */
 
 public class MovieVideo implements Parcelable {
+
+    private static final String SITE_YOUTUBE = "YouTube";
 
     private String videoId, languageCode, countryCode, key, name, site, type;
     private int size;
@@ -85,6 +89,10 @@ public class MovieVideo implements Parcelable {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public boolean isYouTubeVideo() {
+        return StringUtils.equals(getSite(), SITE_YOUTUBE);
     }
 
     @Override
