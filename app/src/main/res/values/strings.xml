@@ -8,6 +8,8 @@
     <string name="title_main_discover">@string/app_name</string>
     <string name="title_main_favorites">Favorites</string>
 
+    <string name="no_favorite_movies_to_show">You don\'t have any favorite yet</string>
+
     <string name="menu_discover">Discover</string>
     <string name="menu_favorites">Favorites</string>
 

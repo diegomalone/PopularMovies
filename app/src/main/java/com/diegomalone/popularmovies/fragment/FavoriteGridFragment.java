@@ -13,11 +13,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.diegomalone.popularmovies.R;
 import com.diegomalone.popularmovies.adapter.FavoriteMovieAdapter;
 import com.diegomalone.popularmovies.adapter.GridAutofitLayoutManager;
 import com.diegomalone.popularmovies.data.MovieContract;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 /**
  * Created by Diego Malone on 30/12/17.
@@ -28,7 +32,7 @@ public class FavoriteGridFragment extends Fragment implements LoaderManager.Load
     private static final int LOADER_ID = 1;
 
     private RecyclerView mMovieRecyclerView;
-
+    private TextView mNoFavoriteMoviesTextView;
     private SwipeRefreshLayout mSwapRefreshLayout;
 
     private FavoriteMovieAdapter mFavoriteMovieAdapter;
@@ -55,6 +59,7 @@ public class FavoriteGridFragment extends Fragment implements LoaderManager.Load
 
         mMovieRecyclerView = view.findViewById(R.id.movie_list_recycler_view);
         mSwapRefreshLayout = view.findViewById(R.id.swipe_layout);
+        mNoFavoriteMoviesTextView = view.findViewById(R.id.no_favorite_text_view);
 
         mSwapRefreshLayout.setEnabled(false);
 
@@ -84,10 +89,22 @@ public class FavoriteGridFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mFavoriteMovieAdapter.changeCursor(data);
+        showFavoriteView();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mFavoriteMovieAdapter.changeCursor(null);
+        showFavoriteView();
+    }
+
+    private void showFavoriteView() {
+        if (mFavoriteMovieAdapter.getItemCount() > 0) {
+            mMovieRecyclerView.setVisibility(VISIBLE);
+            mNoFavoriteMoviesTextView.setVisibility(GONE);
+        } else {
+            mMovieRecyclerView.setVisibility(GONE);
+            mNoFavoriteMoviesTextView.setVisibility(VISIBLE);
+        }
     }
 }

@@ -81,6 +81,12 @@ public class MovieShowcaseActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        updateTitle();
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         item.setChecked(true);
         switch (item.getItemId()) {

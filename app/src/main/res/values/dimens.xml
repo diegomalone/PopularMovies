@@ -9,4 +9,5 @@
     <dimen name="movie_detail_thumbnail_height">132dp</dimen>
 
     <dimen name="text_highlight">18sp</dimen>
+    <dimen name="text_huge">24sp</dimen>
 </resources>
