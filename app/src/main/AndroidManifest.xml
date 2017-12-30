@@ -23,8 +23,8 @@
         <activity
             android:name=".activity.MovieDetailActivity"
             android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".activity.MovieShowcaseActivity">
+            android:parentActivityName=".activity.MovieShowcaseActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.MovieShowcaseActivity" />
@@ -37,6 +37,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.MovieShowcaseActivity" />
         </activity>
+
+        <provider
+            android:name=".data.MovieProvider"
+            android:authorities="com.diegomalone.popularmovies"
+            android:exported="false" />
     </application>
 
 </manifest>

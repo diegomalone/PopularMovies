@@ -9,10 +9,10 @@ import android.os.Parcelable;
 
 public class Movie implements Parcelable {
 
-    private long id, voteCount;
+    private long id;
     private String title, synopsis, releaseDate;
     private String poster, backgroundPhoto;
-    private double userRating, popularity;
+    private double userRating;
 
     public Movie(long id, String title, String synopsis, String releaseDate, String poster, String backgroundPhoto, double userRating) {
         this.id = id;
@@ -30,14 +30,6 @@ public class Movie implements Parcelable {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getVoteCount() {
-        return voteCount;
-    }
-
-    public void setVoteCount(long voteCount) {
-        this.voteCount = voteCount;
     }
 
     public String getTitle() {
@@ -88,18 +80,9 @@ public class Movie implements Parcelable {
         this.userRating = userRating;
     }
 
-    public double getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(double popularity) {
-        this.popularity = popularity;
-    }
-
     public double getFiveStarsRating() {
         return getUserRating() / 2;
     }
-
 
     @Override
     public int describeContents() {
@@ -109,26 +92,22 @@ public class Movie implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
-        dest.writeLong(this.voteCount);
         dest.writeString(this.title);
         dest.writeString(this.synopsis);
         dest.writeString(this.releaseDate);
         dest.writeString(this.poster);
         dest.writeString(this.backgroundPhoto);
         dest.writeDouble(this.userRating);
-        dest.writeDouble(this.popularity);
     }
 
     protected Movie(Parcel in) {
         this.id = in.readLong();
-        this.voteCount = in.readLong();
         this.title = in.readString();
         this.synopsis = in.readString();
         this.releaseDate = in.readString();
         this.poster = in.readString();
         this.backgroundPhoto = in.readString();
         this.userRating = in.readDouble();
-        this.popularity = in.readDouble();
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

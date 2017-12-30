@@ -21,6 +21,9 @@
     <string name="details_video_youtube_pattern" translatable="false">https://img.youtube.com/vi/%1$s/mqdefault.jpg</string>
     <string name="details_video_youtube_url_pattern" translatable="false">http://www.youtube.com/watch?v=%1$s</string>
 
+    <string name="favorites_added">Added to favorites</string>
+    <string name="favorites_removed">Removed from favorites</string>
+
     <!-- Preference Screen -->
     <string name="preference_category_list_type">List type</string>
     <string name="preference_list_type_title">List type</string>
