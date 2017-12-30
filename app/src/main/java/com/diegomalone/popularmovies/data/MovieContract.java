@@ -19,9 +19,9 @@ public class MovieContract {
     private MovieContract() {
     }
 
-    static final class FavoriteMoviesEntry implements BaseColumns {
+    public static final class FavoriteMoviesEntry implements BaseColumns {
 
-        static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
                 .appendPath(PATH_FAVORITES)
                 .build();
 
@@ -31,13 +31,13 @@ public class MovieContract {
 
         static final String TABLE_NAME = "favorites";
 
-        static final String COLUMN_MOVIE_ID = "movieId";
-        static final String COLUMN_MOVIE_TITLE = "movieTitle";
-        static final String COLUMN_MOVIE_SYNOPSIS = "movieSynopsis";
-        static final String COLUMN_MOVIE_RELEASE_DATE = "movieReleaseDate";
-        static final String COLUMN_MOVIE_POSTER = "moviePoster";
-        static final String COLUMN_MOVIE_BACKGROUND_PHOTO = "movieBackgroundPhoto";
-        static final String COLUMN_MOVIE_USER_RATING = "movieUserRating";
+        public static final String COLUMN_MOVIE_ID = "movieId";
+        public static final String COLUMN_MOVIE_TITLE = "movieTitle";
+        public static final String COLUMN_MOVIE_SYNOPSIS = "movieSynopsis";
+        public static final String COLUMN_MOVIE_RELEASE_DATE = "movieReleaseDate";
+        public static final String COLUMN_MOVIE_POSTER = "moviePoster";
+        public static final String COLUMN_MOVIE_BACKGROUND_PHOTO = "movieBackgroundPhoto";
+        public static final String COLUMN_MOVIE_USER_RATING = "movieUserRating";
 
     }
 }

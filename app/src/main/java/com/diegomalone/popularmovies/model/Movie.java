@@ -1,7 +1,10 @@
 package com.diegomalone.popularmovies.model;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.diegomalone.popularmovies.data.MovieContract;
 
 /**
  * Created by malone on 7/24/16.
@@ -82,6 +85,18 @@ public class Movie implements Parcelable {
 
     public double getFiveStarsRating() {
         return getUserRating() / 2;
+    }
+
+    public static Movie fromCursor(Cursor cursor) {
+        long id = cursor.getLong(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID));
+        String title = cursor.getString(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_TITLE));
+        String synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_SYNOPSIS));
+        String releaseDate = cursor.getString(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_RELEASE_DATE));
+        String poster = cursor.getString(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_POSTER));
+        String backgroundPhoto = cursor.getString(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_BACKGROUND_PHOTO));
+        double userRating = cursor.getDouble(cursor.getColumnIndex(MovieContract.FavoriteMoviesEntry.COLUMN_MOVIE_USER_RATING));
+
+        return new Movie(id, title, synopsis, releaseDate, poster, backgroundPhoto, userRating);
     }
 
     @Override
