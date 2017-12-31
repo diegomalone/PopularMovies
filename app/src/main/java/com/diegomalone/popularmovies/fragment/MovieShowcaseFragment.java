@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -30,6 +31,7 @@ import com.diegomalone.popularmovies.network.FetchMoviesTask;
 import com.diegomalone.popularmovies.network.OnTaskCompleted;
 import com.diegomalone.popularmovies.utils.SortUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.diegomalone.popularmovies.fragment.SortDialogFragment.BROADCAST_SORT_PREFERENCES_CHANGED;
@@ -38,6 +40,11 @@ import static com.diegomalone.popularmovies.fragment.SortDialogFragment.BROADCAS
  * A placeholder fragment containing a simple view.
  */
 public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<List<Movie>>, SwipeRefreshLayout.OnRefreshListener {
+
+    public static final String TAG = MovieShowcaseFragment.class.getSimpleName();
+
+    private final String MOVIE_LIST = "movieList";
+    private final String CURRENT_PAGE = "page";
 
     private RecyclerView mMovieRecyclerView;
 
@@ -60,15 +67,16 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_movie_showcase, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mCurrentPage = 1;
 
         mMovieRecyclerView = view.findViewById(R.id.movie_list_recycler_view);
         mSwapRefreshLayout = view.findViewById(R.id.swipe_layout);
@@ -81,7 +89,18 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
 
         setupRecyclerView();
 
-        updateMovieList(1);
+        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIE_LIST)) {
+            ArrayList<Movie> movieList = savedInstanceState.getParcelableArrayList(MOVIE_LIST);
+            mMovieGridAdapter.addMovieList(movieList);
+            mEndlessRecyclerOnScrollListener.setLoading(false);
+
+            if (savedInstanceState.containsKey(CURRENT_PAGE)) {
+                mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE);
+                mEndlessRecyclerOnScrollListener.setCurrentPage(mCurrentPage);
+            }
+        } else {
+            updateMovieList(mCurrentPage);
+        }
     }
 
     private void setupRecyclerView() {
@@ -139,6 +158,15 @@ public class MovieShowcaseFragment extends Fragment implements OnTaskCompleted<L
     private void showSortDialog() {
         DialogFragment dialogFragment = new SortDialogFragment();
         dialogFragment.show(getFragmentManager(), SortDialogFragment.TAG);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        ArrayList<Movie> movieList = new ArrayList<>();
+        movieList.addAll(mMovieGridAdapter.getMovieList());
+        outState.putInt(CURRENT_PAGE, mCurrentPage);
+        outState.putParcelableArrayList(MOVIE_LIST, movieList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

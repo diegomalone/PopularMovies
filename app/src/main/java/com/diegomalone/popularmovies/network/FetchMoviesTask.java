@@ -26,6 +26,8 @@ import java.util.List;
 
 public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
+    private static String TAG = FetchMoviesTask.class.getSimpleName();
+
     private OnTaskCompleted<List<Movie>> mOnTaskCompleted;
 
     public FetchMoviesTask(OnTaskCompleted<List<Movie>> onTaskCompleted) {
@@ -56,7 +58,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
             URL url = new URL(builder.build().toString());
 
-            Log.i("FetchMovieTask", url.toString());
+            Log.i(TAG, "Fetch movies url: " + url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");

@@ -34,6 +34,10 @@ public class MovieVideoAdapter extends RecyclerView.Adapter<MovieVideoAdapter.Mo
         notifyDataSetChanged();
     }
 
+    public List<MovieVideo> getMovieVideoList() {
+        return mMovieVideoList;
+    }
+
     @Override
     public MovieVideoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new MovieVideoViewHolder(new MovieVideoCardView(context));

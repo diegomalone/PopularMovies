@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ import com.diegomalone.popularmovies.network.FetchMovieVideosTask;
 import com.diegomalone.popularmovies.network.OnTaskCompleted;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,16 +44,32 @@ import static android.view.View.VISIBLE;
 
 public class MovieDetailFragment extends Fragment {
 
-    private TextView mMovieTitleTextView, mMovieSynopsisTextView, mMovieReleaseDateTextView, mMovieRatingTextView,
-            mNoMovieReviewsTextView, mNoMovieVideosTextView, mMovieReviewsLoadingTextView, mMovieVideosLoadingTextView;
+    public static final String TAG = MovieDetailFragment.class.getSimpleName();
+
+    public static final String SCROLL_POSITION = "scrollPosition";
+    public static final String MOVIE_REVIEW_LIST = "movieReviewList";
+    public static final String MOVIE_VIDEO_LIST = "movieVideoList";
+
+    private TextView mMovieTitleTextView;
+    private TextView mMovieSynopsisTextView;
+    private TextView mMovieReleaseDateTextView;
+    private TextView mMovieRatingTextView;
+    private TextView mNoMovieReviewsTextView;
+    private TextView mNoMovieVideosTextView;
+    private TextView mMovieReviewsLoadingTextView;
+    private TextView mMovieVideosLoadingTextView;
     private ImageView mMovieThumbnailImageView;
     private RatingBar mMovieRatingBar;
+    private NestedScrollView mScrollView;
+
     private Movie mMovie;
 
-    private RecyclerView mVideoRecyclerView, mReviewsRecyclerView;
+    private RecyclerView mVideoRecyclerView;
+    private RecyclerView mReviewsRecyclerView;
     private MovieReviewAdapter mMovieReviewAdapter;
     private MovieVideoAdapter mMovieVideoAdapter;
-    private LinearLayoutManager mMovieReviewLayoutManager, mMovieVideoLayoutManager;
+    private LinearLayoutManager mMovieReviewLayoutManager;
+    private LinearLayoutManager mMovieVideoLayoutManager;
 
     public MovieDetailFragment() {
     }
@@ -71,25 +89,41 @@ public class MovieDetailFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mMovieTitleTextView = view.findViewById(R.id.movie_title_text_view);
-        mMovieSynopsisTextView = view.findViewById(R.id.movie_synopsis_text_view);
-        mMovieReleaseDateTextView = view.findViewById(R.id.movie_release_date_text_view);
-        mMovieThumbnailImageView = view.findViewById(R.id.movie_thumbnail_image_view);
-        mMovieRatingBar = view.findViewById(R.id.movie_rating_rating_bar);
-        mMovieRatingTextView = view.findViewById(R.id.movie_rating_text_view);
-        mNoMovieReviewsTextView = view.findViewById(R.id.review_list_empty_text_view);
-        mNoMovieVideosTextView = view.findViewById(R.id.video_list_empty_text_view);
-        mMovieReviewsLoadingTextView = view.findViewById(R.id.review_list_loading_text_view);
-        mMovieVideosLoadingTextView = view.findViewById(R.id.video_list_loading_text_view);
-
-        mVideoRecyclerView = view.findViewById(R.id.video_list_recycler_view);
-        mReviewsRecyclerView = view.findViewById(R.id.review_list_recycler_view);
-
+        initViews(view);
         setupRecyclerViews();
 
+        showMovieDetails();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIE_REVIEW_LIST)) {
+            ArrayList<MovieReview> movieReviews = savedInstanceState.getParcelableArrayList(MOVIE_REVIEW_LIST);
+            showMovieReviewList(movieReviews);
+        } else {
+            loadMovieReviews();
+        }
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIE_VIDEO_LIST)) {
+            ArrayList<MovieVideo> movieVideos = savedInstanceState.getParcelableArrayList(MOVIE_VIDEO_LIST);
+            showMovieVideoList(movieVideos);
+        } else {
+            loadMovieVideos();
+        }
+
+        mScrollView.post(new Runnable() {
+            public void run() {
+                int scrollPosition = 0;
+                if (savedInstanceState != null && savedInstanceState.containsKey(SCROLL_POSITION)) {
+                    scrollPosition = savedInstanceState.getInt(SCROLL_POSITION, 0);
+                }
+
+                mScrollView.scrollTo(0, scrollPosition);
+            }
+        });
+    }
+
+    private void showMovieDetails() {
         mMovieTitleTextView.setText(mMovie.getTitle());
         mMovieSynopsisTextView.setText(mMovie.getSynopsis());
         mMovieReleaseDateTextView.setText(getString(R.string.release_date_placeholder, mMovie.getReleaseDate()));
@@ -114,12 +148,21 @@ public class MovieDetailFragment extends Fragment {
                 .into(mMovieThumbnailImageView);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    private void initViews(@NonNull View view) {
+        mMovieTitleTextView = view.findViewById(R.id.movie_title_text_view);
+        mMovieSynopsisTextView = view.findViewById(R.id.movie_synopsis_text_view);
+        mMovieReleaseDateTextView = view.findViewById(R.id.movie_release_date_text_view);
+        mMovieThumbnailImageView = view.findViewById(R.id.movie_thumbnail_image_view);
+        mMovieRatingBar = view.findViewById(R.id.movie_rating_rating_bar);
+        mMovieRatingTextView = view.findViewById(R.id.movie_rating_text_view);
+        mNoMovieReviewsTextView = view.findViewById(R.id.review_list_empty_text_view);
+        mNoMovieVideosTextView = view.findViewById(R.id.video_list_empty_text_view);
+        mMovieReviewsLoadingTextView = view.findViewById(R.id.review_list_loading_text_view);
+        mMovieVideosLoadingTextView = view.findViewById(R.id.video_list_loading_text_view);
+        mScrollView = view.findViewById(R.id.scroll_view);
 
-        loadMovieVideos();
-        loadMovieReviews();
+        mVideoRecyclerView = view.findViewById(R.id.video_list_recycler_view);
+        mReviewsRecyclerView = view.findViewById(R.id.review_list_recycler_view);
     }
 
     private void setupRecyclerViews() {
@@ -145,18 +188,23 @@ public class MovieDetailFragment extends Fragment {
         new FetchMovieReviewsTask(movieReviewListOnTaskCompleted).execute(String.valueOf(mMovie.getId()), getString(R.string.tmdb_api_key));
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        ArrayList<MovieReview> movieReviews = new ArrayList<>();
+        movieReviews.addAll(mMovieReviewAdapter.getMovieReviewList());
+        ArrayList<MovieVideo> movieVideos = new ArrayList<>();
+        movieVideos.addAll(mMovieVideoAdapter.getMovieVideoList());
+
+        outState.putInt(SCROLL_POSITION, mScrollView.getScrollY());
+        outState.putParcelableArrayList(MOVIE_REVIEW_LIST, movieReviews);
+        outState.putParcelableArrayList(MOVIE_VIDEO_LIST, movieVideos);
+        super.onSaveInstanceState(outState);
+    }
+
     OnTaskCompleted<List<MovieVideo>> movieVideoListOnTaskCompleted = new OnTaskCompleted<List<MovieVideo>>() {
         @Override
         public void onTaskCompleted(List<MovieVideo> movieVideos) {
-            mMovieVideosLoadingTextView.setVisibility(GONE);
-            if (movieVideos.size() > 0) {
-                mMovieVideoAdapter.setMovieList(movieVideos);
-                mVideoRecyclerView.setVisibility(VISIBLE);
-                mNoMovieVideosTextView.setVisibility(GONE);
-            } else {
-                mVideoRecyclerView.setVisibility(GONE);
-                mNoMovieVideosTextView.setVisibility(VISIBLE);
-            }
+            showMovieVideoList(movieVideos);
         }
 
         @Override
@@ -168,15 +216,7 @@ public class MovieDetailFragment extends Fragment {
     OnTaskCompleted<List<MovieReview>> movieReviewListOnTaskCompleted = new OnTaskCompleted<List<MovieReview>>() {
         @Override
         public void onTaskCompleted(List<MovieReview> movieReviews) {
-            mMovieReviewsLoadingTextView.setVisibility(GONE);
-            if (movieReviews.size() > 0) {
-                mMovieReviewAdapter.setMovieList(movieReviews);
-                mReviewsRecyclerView.setVisibility(VISIBLE);
-                mNoMovieReviewsTextView.setVisibility(GONE);
-            } else {
-                mReviewsRecyclerView.setVisibility(GONE);
-                mNoMovieReviewsTextView.setVisibility(VISIBLE);
-            }
+            showMovieReviewList(movieReviews);
         }
 
         @Override
@@ -184,4 +224,28 @@ public class MovieDetailFragment extends Fragment {
             Toast.makeText(getActivity(), R.string.error_getting_movie_reviews, Toast.LENGTH_LONG).show();
         }
     };
+
+    private void showMovieVideoList(List<MovieVideo> movieVideos) {
+        mMovieVideosLoadingTextView.setVisibility(GONE);
+        if (movieVideos.size() > 0) {
+            mMovieVideoAdapter.setMovieList(movieVideos);
+            mVideoRecyclerView.setVisibility(VISIBLE);
+            mNoMovieVideosTextView.setVisibility(GONE);
+        } else {
+            mVideoRecyclerView.setVisibility(GONE);
+            mNoMovieVideosTextView.setVisibility(VISIBLE);
+        }
+    }
+
+    private void showMovieReviewList(List<MovieReview> movieReviews) {
+        mMovieReviewsLoadingTextView.setVisibility(GONE);
+        if (movieReviews.size() > 0) {
+            mMovieReviewAdapter.setMovieList(movieReviews);
+            mReviewsRecyclerView.setVisibility(VISIBLE);
+            mNoMovieReviewsTextView.setVisibility(GONE);
+        } else {
+            mReviewsRecyclerView.setVisibility(GONE);
+            mNoMovieReviewsTextView.setVisibility(VISIBLE);
+        }
+    }
 }

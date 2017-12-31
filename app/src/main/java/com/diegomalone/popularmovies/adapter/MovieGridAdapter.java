@@ -30,10 +30,13 @@ public class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.Movi
         notifyDataSetChanged();
     }
 
-
     public void addMovieList(List<Movie> movieList) {
         mMovieList.addAll(movieList);
         notifyDataSetChanged();
+    }
+
+    public List<Movie> getMovieList() {
+        return mMovieList;
     }
 
     @Override

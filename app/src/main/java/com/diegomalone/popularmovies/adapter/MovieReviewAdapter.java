@@ -30,6 +30,10 @@ public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.
         notifyDataSetChanged();
     }
 
+    public List<MovieReview> getMovieReviewList() {
+        return mMovieReviewList;
+    }
+
     @Override
     public MovieReviewViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new MovieReviewViewHolder(new MovieReviewCardView(context));
